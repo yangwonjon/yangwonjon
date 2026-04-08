@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="tab-title">🔒 인증 필요</title>
+    <style>
+        :root { --bg: #FFF9F0; --point: #FF8A8A; --text: #4A4A4A; }
+        body { margin: 0; padding: 0; background-color: var(--bg); font-family: 'Apple SD Gothic Neo', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        
+        /* 암호 가림막 */
+        #lock { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 9999; }
+
+        /* 메인 카드 */
+        #main-content { display: none; width: 100%; display: flex; justify-content: center; align-items: center; }
+        .card { width: 85%; max-width: 400px; background: white; border-radius: 40px; padding: 50px 20px; box-shadow: 0 15px 35px rgba(230,220,200,0.4); text-align: center; border: 1px solid #F5EBD0; }
+        
+        .diary-link { cursor: pointer; display: inline-block; transition: transform 0.2s; }
+        .diary-link:active { transform: scale(0.95); }
+        h1 { color: var(--text); font-size: 26px; margin: 0; }
+        .names { color: var(--point); font-weight: bold; }
+        .date-info { color: #C2C2C2; font-size: 14px; margin-top: 15px; display: block; }
+
+        /* 게시판 영역 */
+        #board { display: none; width: 90%; max-width: 500px; background: white; border-radius: 30px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .board-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        textarea { width: 100%; height: 100px; border: 1px solid #EEE; border-radius: 15px; padding: 15px; box-sizing: border-box; font-family: inherit; resize: none; margin-bottom: 10px; background: #FAFAFA; }
+        .save-btn { width: 100%; background: var(--point); color: white; border: none; padding: 12px; border-radius: 12px; font-weight: bold; cursor: pointer; }
+        
+        #post-list { margin-top: 20px; text-align: left; max-height: 300px; overflow-y: auto; }
+        .post-item { background: #FFF9F9; padding: 15px; border-radius: 15px; margin-bottom: 10px; border-left: 4px solid var(--point); position: relative; }
+        .post-date { font-size: 11px; color: #BBB; margin-bottom: 5px; }
+        .delete-btn { position: absolute; top: 10px; right: 10px; color: #DDD; cursor: pointer; font-size: 12px; }
+    </style>
+</head>
+<body>
+
+<div id="lock"></div>
+
+<div id="main-content" style="display: none;">
+    <div id="main-page" class="card">
+        <div class="diary-link" onclick="showBoard()">
+            <div style="font-size: 50px; margin-bottom: 15px;">📔</div>
+            <h1><span class="names">원준 & 유현</span> 일기장</h1>
+            <small style="color: #FFBABA;">(클릭해서 글쓰기)</small>
+            <div class="date-info">2026. 04. 08 ~ 기록 중</div>
+        </div>
+    </div>
+
+    <div id="board">
+        <div class="board-header">
+            <strong style="color: var(--point); font-size: 18px;">우리들의 기록장</strong>
+            <span style="cursor: pointer; font-size: 20px;" onclick="showMain()">✕</span>
+        </div>
+        <textarea id="post-input" placeholder="오늘의 추억을 기록해봐요..."></textarea>
+        <button class="save-btn" onclick="addPost()">기록하기</button>
+        <div id="post-list"></div>
+    </div>
+</div>
+
+<script>
+    // 비밀번호 체크 및 타이틀 변경
+    window.onload = function() {
+        const pw = prompt("비밀번호를 입력하세요.");
+        if (pw === "0408") {
+            // 비밀번호 성공 시 실행될 내용들
+            document.getElementById("lock").style.display = "none";
+            document.getElementById("main-content").style.display = "flex";
+            
+            // 브라우저 탭 이름을 바꿈
+            document.title = "원준 & 유현 일기장";
+            
+            renderPosts();
+        } else {
+            alert("비밀번호가 틀렸습니다.");
+            location.reload();
+        }
+    };
+
+    function showBoard() {
+        document.getElementById("main-page").style.display = "none";
+        document.getElementById("board").style.display = "block";
+    }
+
+    function showMain() {
+        document.getElementById("board").style.display = "none";
+        document.getElementById("main-page").style.display = "block";
+    }
+
+    function addPost() {
+        const input = document.getElementById("post-input");
+        if (!input.value.trim()) return alert("내용을 입력해주세요!");
+        const posts = JSON.parse(localStorage.getItem("diary_posts") || "[]");
+        const newPost = { id: Date.now(), content: input.value, date: new Date().toLocaleString() };
+        posts.unshift(newPost);
+        localStorage.setItem("diary_posts", JSON.stringify(posts));
+        input.value = "";
+        renderPosts();
+    }
+
+    function renderPosts() {
+        const posts = JSON.parse(localStorage.getItem("diary_posts") || "[]");
+        const list = document.getElementById("post-list");
+        list.innerHTML = posts.map(post => `
+            <div class="post-item">
+                <div class="post-date">${post.date}</div>
+                <div>${post.content}</div>
+                <span class="delete-btn" onclick="deletePost(${post.id})">삭제</span>
+            </div>
+        `).join('');
+    }
+
+    function deletePost(id) {
+        if (!confirm("기록을 지울까요?")) return;
+        let posts = JSON.parse(localStorage.getItem("diary_posts") || "[]");
+        posts = posts.filter(p => p.id !== id);
+        localStorage.setItem("diary_posts", JSON.stringify(posts));
+        renderPosts();
+    }
+</script>
+
+</body>
+</html>
