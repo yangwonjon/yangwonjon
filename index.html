@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>원준 & 유현 일기장</title>
+    <style>
+        /* 배경 및 폰트 설정 */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #FFF9F0; /* 따뜻한 크림색 배경 */
+            font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* 비밀번호 입력 전 화면 가림막 */
+        #hide-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #FFF9F0;
+            z-index: 1000;
+        }
+
+        /* 일기장 카드 디자인 */
+        .diary-container {
+            width: 85%;
+            max-width: 360px;
+            background: white;
+            border-radius: 40px;
+            padding: 60px 20px;
+            box-shadow: 0 15px 35px rgba(230, 220, 200, 0.6);
+            text-align: center;
+            border: 1px solid #F5EBD0;
+            position: relative;
+        }
+
+        /* 일기장 상단 아이콘 */
+        .diary-icon {
+            font-size: 50px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #4A4A4A;
+            font-size: 26px;
+            margin: 0;
+            letter-spacing: -0.5px;
+        }
+
+        .names {
+            color: #FF8A8A; /* 부드러운 분홍색 */
+            font-weight: bold;
+        }
+
+        .date-info {
+            color: #C2C2C2;
+            font-size: 14px;
+            margin-top: 15px;
+            border-top: 1px solid #F0F0F0;
+            padding-top: 15px;
+            display: inline-block;
+        }
+
+        /* 하단 장식선 */
+        .line {
+            width: 40px;
+            height: 3px;
+            background-color: #FFD1D1;
+            margin: 25px auto 0;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="hide-screen"></div>
+
+    <div class="diary-container">
+        <div class="diary-icon">📔</div>
+        <h1><span class="names">원준 & 유현</span> 일기장</h1>
+        <div class="line"></div>
+        <div class="date-info">2026. 04. 08 ~ 기록 중</div>
+    </div>
+
+    <script>
+        // 페이지 로드 시 즉시 실행
+        window.onload = function() {
+            // 사용자에게 비밀번호 입력 받기
+            const input = prompt("비밀번호 4자리를 입력해 주세요.");
+
+            if (input === "0408") {
+                // 비밀번호가 맞으면 가림막을 없애고 내용을 보여줌
+                document.getElementById("hide-screen").style.display = "none";
+            } else {
+                // 틀리면 경고 후 새로고침
+                alert("비밀번호가 올바르지 않습니다.");
+                location.reload();
+            }
+        };
+    </script>
+
+</body>
+</html>
