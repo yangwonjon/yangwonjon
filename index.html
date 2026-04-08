@@ -2,8 +2,8 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="tab-title">🔒 인증 필요</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🔒</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root { --bg: #FFF9F0; --point: #FF8A8A; --text: #4A4A4A; }
@@ -12,11 +12,10 @@
         #main-content { display: none; width: 100%; flex-direction: column; align-items: center; }
         .card { width: 85%; max-width: 400px; background: white; border-radius: 40px; padding: 50px 20px; box-shadow: 0 15px 35px rgba(230,220,200,0.4); text-align: center; border: 1px solid #F5EBD0; }
         #board { display: none; width: 90%; max-width: 500px; background: white; border-radius: 30px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
-        textarea { width: 100%; height: 100px; border: 1px solid #EEE; border-radius: 15px; padding: 15px; box-sizing: border-box; resize: none; margin-bottom: 10px; background: #FAFAFA; font-size: 16px; }
+        textarea { width: 100%; height: 100px; border: 1px solid #EEE; border-radius: 15px; padding: 15px; box-sizing: border-box; resize: none; margin-bottom: 10px; background: #FAFAFA; font-size: 16px; outline: none; }
         .save-btn { width: 100%; background: var(--point); color: white; border: none; padding: 15px; border-radius: 12px; font-weight: bold; cursor: pointer; }
         #post-list { margin-top: 20px; text-align: left; max-height: 400px; overflow-y: auto; }
-        .post-item { background: #FFF9F9; padding: 15px; border-radius: 15px; margin-bottom: 12px; border-left: 4px solid var(--point); position: relative; }
-        .post-date { font-size: 11px; color: #BBB; }
+        .post-item { background: #FFF9F9; padding: 15px; border-radius: 15px; margin-bottom: 12px; border-left: 4px solid var(--point); }
     </style>
 </head>
 <body>
@@ -25,41 +24,55 @@
 <div id="main-content">
     <div id="main-page" class="card">
         <div style="cursor:pointer" onclick="showBoard()">
-            <div style="font-size: 50px;">📔</div>
-            <h1><span style="color:var(--point);font-weight:bold">원준 & 유현</span> 일기장</h1>
-            <p style="color:#FFBABA">여기를 눌러서 글쓰기</p>
+            <div style="font-size: 50px; margin-bottom: 10px;">📔</div>
+            <h1><span style="color:var(--point); font-weight:bold;">원준 & 유현</span> 일기장</h1>
+            <p style="color:#FFBABA; font-size: 14px;">클릭해서 추억 기록하기</p>
         </div>
     </div>
     <div id="board">
-        <div style="display:flex;justify-content:space-between;margin-bottom:20px;">
-            <strong>우리들의 기록장</strong>
-            <span style="cursor:pointer" onclick="showMain()">✕</span>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <strong style="color:var(--point);">우리들의 기록장</strong>
+            <span style="cursor:pointer; font-size: 24px;" onclick="showMain()">✕</span>
         </div>
-        <textarea id="post-input" placeholder="추억을 남겨보세요..."></textarea>
+        <textarea id="post-input" placeholder="오늘 어떤 일이 있었나요?"></textarea>
         <button class="save-btn" onclick="addPost()">기록하기</button>
         <div id="post-list"></div>
     </div>
 </div>
 
 <script>
-    // 보내주신 정보 정확히 입력함
+    // 원준님이 주신 키를 가공 없이 정확하게 한 줄로 넣었습니다.
     const S_URL = "https://wmpqwkvbhpikoyepecya.supabase.co";
-    const S_KEY = "EyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndtcHF3a3ZiaHBpa295ZXBlY3lhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1NDg1OTgsImV4cCI6MjA5MTEyNDU5OH0.QB2jIsi_dXzrS-cAY3MCKfjO9p69a7pJ2PDEbflE4V0";
+    const S_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndtcHF3a3ZiaHBpa295ZXBlY3lhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1NDg1OTgsImV4cCI6MjA5MTEyNDU5OH0.QB2jIsi_dXzrS-cAY3MCKfjO9p69a7pJ2PDEbflE4V0";
     
-    // 라이브러리가 로드되었는지 확인 후 초기화
-    const _supabase = supabase.createClient(S_URL, S_KEY);
+    let _supabase;
 
-    window.onload = function() {
-        const pw = prompt("비밀번호 4자리(0408)를 입력하세요.");
+    // 2. 안전하게 초기화하는 함수
+    function startDiary() {
+        const pw = prompt("비밀번호 4자리를 입력하세요.");
         if (pw === "0408") {
-            document.getElementById("lock").style.display = "none";
-            document.getElementById("main-content").style.display = "flex";
-            document.title = "원준 & 유현 일기장";
-            fetchPosts();
+            try {
+                // 라이브러리가 있는지 확인 후 생성
+                if (typeof supabase !== 'undefined') {
+                    _supabase = supabase.createClient(S_URL, S_KEY);
+                    document.getElementById("lock").style.display = "none";
+                    document.getElementById("main-content").style.display = "flex";
+                    fetchPosts();
+                } else {
+                    alert("시스템 로딩 중입니다. 잠시 후 다시 시도해주세요.");
+                }
+            } catch (err) {
+                alert("연결 설정 오류: " + err.message);
+            }
         } else {
-            alert("비밀번호가 틀렸습니다.");
+            alert("틀렸습니다.");
             location.reload();
         }
+    }
+
+    // 페이지 로드 완료 후 실행
+    window.onload = function() {
+        setTimeout(startDiary, 500); // 0.5초 여유를 둠
     };
 
     function showBoard() { document.getElementById("main-page").style.display="none"; document.getElementById("board").style.display="block"; }
@@ -68,26 +81,21 @@
     async function addPost() {
         const input = document.getElementById("post-input");
         const content = input.value.trim();
-        if (!content) return;
-
+        if (!content || !_supabase) return;
         const { error } = await _supabase.from('posts').insert([{ content: content }]);
-        if (error) {
-            alert("에러 발생: " + error.message); // 어떤 에러인지 팝업으로 띄움
-            console.log(error);
-        } else {
-            input.value = "";
-            fetchPosts();
-        }
+        if (error) alert("저장 실패: " + error.message);
+        else { input.value = ""; fetchPosts(); }
     }
 
     async function fetchPosts() {
+        if (!_supabase) return;
         const { data, error } = await _supabase.from('posts').select('*').order('created_at', { ascending: false });
         if (error) return;
         const list = document.getElementById("post-list");
-        list.innerHTML = data.map(post => `
+        list.innerHTML = data.map(p => `
             <div class="post-item">
-                <div class="post-date">${new Date(post.created_at).toLocaleString()}</div>
-                <div style="white-space:pre-wrap;">${post.content}</div>
+                <div style="font-size:11px; color:#BBB; margin-bottom:5px;">${new Date(p.created_at).toLocaleString('ko-KR')}</div>
+                <div style="white-space:pre-wrap; color:var(--text);">${p.content}</div>
             </div>
         `).join('');
     }
