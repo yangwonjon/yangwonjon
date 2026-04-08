@@ -3,42 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>토스 앱 열기</title>
+    <title>앱 실행 버튼 테스트</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; padding: 20px; }
+        button {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .kakao { background-color: #FEE500; color: #3c1e1e; }
+        .instagram { background: linear-gradient(45deg, #405de6, #5851db, #833ab4, #c13584, #e1306c, #fd1d1d); }
+        .toss { background-color: #0050FF; }
+    </style>
 </head>
 <body>
-    <div style="padding: 50px; text-align: center;">
-        <button onclick="openToss()" style="padding: 20px; font-size: 18px; background: #0050FF; color: white; border: none; border-radius: 10px; width: 100%;">
-            토스 앱 바로 열기
-        </button>
 
-        <br><br>
+    <h2>앱 실행하기</h2>
 
-        <button onclick="sendMoney()" style="padding: 20px; font-size: 18px; background: #3182f6; color: white; border: none; border-radius: 10px; width: 100%;">
-            토스 송금 화면 열기 (1,000원)
-        </button>
-    </div>
+    <button class="kakao" onclick="openApp('kakaotalk://')">카카오톡 열기</button>
+
+    <button class="instagram" onclick="openApp('instagram://')">인스타그램 열기</button>
+
+    <button class="toss" onclick="openApp('supertoss://')">토스 열기</button>
 
     <script>
-        function openToss() {
-            // 토스 앱의 커스텀 스킴(Scheme) 주소입니다.
-            const tossScheme = "supertoss://";
-            
+        function openApp(url) {
             // 앱 실행 시도
-            window.location.href = tossScheme;
+            window.location.href = url;
 
-            // 앱이 안 깔려있을 경우를 대비해 2초 후 스토어로 이동 (선택 사항)
+            // 앱이 설치되지 않았을 경우를 대비한 처리 (선택 사항)
+            // 0.5초 후에 반응이 없으면 아무 동작 안 하거나 안내 메시지를 띄울 수 있습니다.
             setTimeout(function() {
-                if (confirm("토스 앱이 설치되어 있지 않은 것 같습니다. 스토어로 이동할까요?")) {
-                    window.location.href = "https://play.google.com/store/apps/details?id=viva.republica.toss";
-                }
-            }, 2000);
-        }
-
-        function sendMoney() {
-            // 특정 금액과 함께 송금 화면으로 바로 가는 링크
-            // (참고: 보안 정책에 따라 일부 파라미터는 제한될 수 있습니다)
-            window.location.href = "supertoss://send?amount=1000";
+                console.log("앱 실행 시도 완료");
+            }, 500);
         }
     </script>
+
 </body>
 </html>
