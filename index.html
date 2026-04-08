@@ -9,13 +9,16 @@
         :root { --bg: #FFF9F0; --point: #FF8A8A; --text: #4A4A4A; }
         body { margin: 0; padding: 0; background-color: var(--bg); font-family: 'Apple SD Gothic Neo', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
         #lock { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 9999; }
-        #main-content { display: none; width: 100%; flex-direction: column; align-items: center; }
+        #main-content { display: none; width: 100%; flex-direction: column; align-items: center; padding-top: 20px; }
         .card { width: 85%; max-width: 400px; background: white; border-radius: 40px; padding: 50px 20px; box-shadow: 0 15px 35px rgba(230,220,200,0.4); text-align: center; border: 1px solid #F5EBD0; }
-        #board { display: none; width: 90%; max-width: 500px; background: white; border-radius: 30px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        #board { display: none; width: 90%; max-width: 500px; background: white; border-radius: 30px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-bottom: 50px; }
         textarea { width: 100%; height: 100px; border: 1px solid #EEE; border-radius: 15px; padding: 15px; box-sizing: border-box; resize: none; margin-bottom: 10px; background: #FAFAFA; font-size: 16px; outline: none; }
-        .save-btn { width: 100%; background: var(--point); color: white; border: none; padding: 15px; border-radius: 12px; font-weight: bold; cursor: pointer; }
-        #post-list { margin-top: 20px; text-align: left; max-height: 400px; overflow-y: auto; }
-        .post-item { background: #FFF9F9; padding: 15px; border-radius: 15px; margin-bottom: 12px; border-left: 4px solid var(--point); }
+        .save-btn { width: 100%; background: var(--point); color: white; border: none; padding: 15px; border-radius: 12px; font-weight: bold; cursor: pointer; margin-bottom: 20px; }
+        #post-list { text-align: left; }
+        .post-item { background: #FFF9F9; padding: 15px; border-radius: 15px; margin-bottom: 12px; border-left: 4px solid var(--point); position: relative; }
+        .post-date { font-size: 11px; color: #BBB; margin-bottom: 5px; }
+        .delete-btn { position: absolute; top: 12px; right: 12px; background: none; border: none; color: #FFBABA; cursor: pointer; font-size: 12px; }
+        .delete-btn:hover { color: var(--point); }
     </style>
 </head>
 <body>
@@ -41,43 +44,36 @@
 </div>
 
 <script>
-    // 원준님이 주신 키를 가공 없이 정확하게 한 줄로 넣었습니다.
     const S_URL = "https://wmpqwkvbhpikoyepecya.supabase.co";
     const S_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndtcHF3a3ZiaHBpa295ZXBlY3lhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1NDg1OTgsImV4cCI6MjA5MTEyNDU5OH0.QB2jIsi_dXzrS-cAY3MCKfjO9p69a7pJ2PDEbflE4V0";
     
     let _supabase;
 
-    // 2. 안전하게 초기화하는 함수
-    function startDiary() {
-        const pw = prompt("비밀번호 4자리를 입력하세요.");
-        if (pw === "0408") {
-            try {
-                // 라이브러리가 있는지 확인 후 생성
-                if (typeof supabase !== 'undefined') {
+    // 라이브러리가 확실히 로드된 후 초기화
+    window.onload = function() {
+        setTimeout(() => {
+            const pw = prompt("비밀번호 4자리를 입력하세요.");
+            if (pw === "0408") {
+                try {
                     _supabase = supabase.createClient(S_URL, S_KEY);
                     document.getElementById("lock").style.display = "none";
                     document.getElementById("main-content").style.display = "flex";
+                    document.title = "원준 & 유현 일기장";
                     fetchPosts();
-                } else {
-                    alert("시스템 로딩 중입니다. 잠시 후 다시 시도해주세요.");
+                } catch (e) {
+                    alert("시스템 연결 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
                 }
-            } catch (err) {
-                alert("연결 설정 오류: " + err.message);
+            } else {
+                alert("틀렸습니다.");
+                location.reload();
             }
-        } else {
-            alert("틀렸습니다.");
-            location.reload();
-        }
-    }
-
-    // 페이지 로드 완료 후 실행
-    window.onload = function() {
-        setTimeout(startDiary, 500); // 0.5초 여유를 둠
+        }, 500);
     };
 
     function showBoard() { document.getElementById("main-page").style.display="none"; document.getElementById("board").style.display="block"; }
     function showMain() { document.getElementById("board").style.display="none"; document.getElementById("main-page").style.display="flex"; }
 
+    // 글 저장
     async function addPost() {
         const input = document.getElementById("post-input");
         const content = input.value.trim();
@@ -87,15 +83,24 @@
         else { input.value = ""; fetchPosts(); }
     }
 
+    // 글 삭제 (새로 추가됨)
+    async function deletePost(id) {
+        if (!confirm("정말 이 글을 삭제할까요?")) return;
+        const { error } = await _supabase.from('posts').delete().eq('id', id);
+        if (error) alert("삭제 실패: " + error.message);
+        else fetchPosts();
+    }
+
+    // 글 목록 불러오기
     async function fetchPosts() {
-        if (!_supabase) return;
         const { data, error } = await _supabase.from('posts').select('*').order('created_at', { ascending: false });
         if (error) return;
         const list = document.getElementById("post-list");
         list.innerHTML = data.map(p => `
             <div class="post-item">
-                <div style="font-size:11px; color:#BBB; margin-bottom:5px;">${new Date(p.created_at).toLocaleString('ko-KR')}</div>
+                <div class="post-date">${new Date(p.created_at).toLocaleString('ko-KR')}</div>
                 <div style="white-space:pre-wrap; color:var(--text);">${p.content}</div>
+                <button class="delete-btn" onclick="deletePost(${p.id})">삭제</button>
             </div>
         `).join('');
     }
