@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>조용한 기록</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F7F6F2;
+    --ink:#1F2B24;
+    --ink-soft:#566058;
+    --accent:#4F7867;
+    --brass:#C9A66B;
+    --line:#DAD6CC;
+    --card:#FFFFFF;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Inter', sans-serif;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--accent);}
+
+  .wrap{
+    max-width:680px;
+    margin:0 auto;
+    padding:0 24px;
+  }
+
+  header.site{
+    padding:64px 0 32px;
+    border-bottom:1px solid var(--line);
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-bottom:18px;
+  }
+  .dot{
+    width:8px;height:8px;border-radius:50%;
+    background:var(--line);
+    flex-shrink:0;
+    transition:background 0.3s ease;
+  }
+  .dot.requesting{
+    background:var(--brass);
+    animation:pulse 1.4s ease-in-out infinite;
+  }
+  .dot.granted{ background:var(--accent); }
+  .dot.denied{ background:#B5564B; }
+  @media (prefers-reduced-motion: reduce){
+    .dot.requesting{ animation:none; }
+  }
+  @keyframes pulse{
+    0%,100%{ opacity:1; transform:scale(1); }
+    50%{ opacity:0.45; transform:scale(1.25); }
+  }
+
+  h1.title{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:clamp(34px, 6vw, 48px);
+    letter-spacing:-0.01em;
+    margin:0 0 12px;
+  }
+  .tagline{
+    color:var(--ink-soft);
+    font-size:16px;
+    max-width:46ch;
+    margin:0;
+  }
+
+  main{ padding:48px 0 80px; }
+
+  .intro{
+    font-size:16px;
+    color:var(--ink-soft);
+    margin-bottom:48px;
+    padding-bottom:32px;
+    border-bottom:1px solid var(--line);
+  }
+
+  article.post{
+    padding:28px 0;
+    border-bottom:1px solid var(--line);
+  }
+  article.post:last-child{ border-bottom:none; }
+  .post-date{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    color:var(--brass);
+    letter-spacing:0.04em;
+  }
+  .post-title{
+    font-family:'Fraunces', serif;
+    font-size:24px;
+    font-weight:500;
+    margin:8px 0 8px;
+  }
+  .post-excerpt{
+    color:var(--ink-soft);
+    font-size:15px;
+    margin:0;
+  }
+
+  footer.site{
+    border-top:1px solid var(--line);
+    padding:28px 0 64px;
+    font-size:13px;
+    color:var(--ink-soft);
+    display:flex;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+
+  a:focus-visible, button:focus-visible{
+    outline:2px solid var(--accent);
+    outline-offset:3px;
+  }
+</style>
+</head>
+<body>
+
+  <div class="wrap">
+    <header class="site">
+      <div class="eyebrow">
+        <span class="dot" id="locDot"></span>
+        <span id="locText">위치 신호 대기 중</span>
+      </div>
+      <h1 class="title">조용한 기록</h1>
+      <p class="tagline">매일의 생각을 가볍게 적어두는 공간입니다.</p>
+    </header>
+
+    <main>
+      <p class="intro">
+        이 블로그는 방문 시점의 대략적인 위치 정보를 함께 기록합니다.
+        브라우저가 위치 권한을 물으면, 허용해 주시면 좋아요.
+      </p>
+
+      <article class="post">
+        <div class="post-date">2026.06.20</div>
+        <h2 class="post-title">아침에 쓰는 글</h2>
+        <p class="post-excerpt">
+          하루를 시작하기 전, 짧은 메모 하나가 생각을 정리하는 데 도움이 됩니다.
+          오늘도 작은 기록을 남겨봅니다.
+        </p>
+      </article>
+
+      <article class="post">
+        <div class="post-date">2026.06.15</div>
+        <h2 class="post-title">느리게 걷는 산책</h2>
+        <p class="post-excerpt">
+          빠르게 지나치던 길을 천천히 걸어보면, 평소에 보지 못했던 풍경이 눈에 들어옵니다.
+        </p>
+      </article>
+
+      <article class="post">
+        <div class="post-date">2026.06.08</div>
+        <h2 class="post-title">정리에 대한 생각</h2>
+        <p class="post-excerpt">
+          물건을 정리하는 것은 결국 생각을 정리하는 것과 비슷한 일이라는 걸 다시 느낍니다.
+        </p>
+      </article>
+    </main>
+
+    <footer class="site">
+      <span>© 2026 조용한 기록</span>
+      <span>위치 정보는 통계 목적으로만 사용됩니다</span>
+    </footer>
+  </div>
+
+<script>
+  // ====== Supabase 연결 설정 (직접 값을 채워주세요) ======
+  const SUPABASE_URL = "https://ndctjtuxpkwdldhqbnih.supabase.co";
+  const SUPABASE_ANON_KEY = "sb_publishable_ZvI5YuJiW-pDSbdMcSiJLg_h-f2hMe7";
+  const TABLE_NAME = "visitor_locations";
+  // =======================================================
+
+  const dotEl = document.getElementById('locDot');
+  const textEl = document.getElementById('locText');
+
+  function setStatus(state, label){
+    dotEl.className = 'dot ' + state;
+    textEl.textContent = label;
+  }
+
+  async function saveLocation(latitude, longitude, accuracy){
+    try{
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/${TABLE_NAME}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify({
+          latitude,
+          longitude,
+          accuracy,
+          user_agent: navigator.userAgent
+        })
+      });
+      if(!res.ok){
+        console.error('Supabase 저장 실패:', res.status, await res.text());
+      }
+    }catch(err){
+      console.error('Supabase 요청 오류:', err);
+    }
+  }
+
+  function requestLocation(){
+    if(!('geolocation' in navigator)){
+      setStatus('denied', '이 브라우저는 위치 기능을 지원하지 않습니다');
+      return;
+    }
+
+    setStatus('requesting', '위치 권한 요청 중');
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude, accuracy } = position.coords;
+        setStatus('granted', '위치 정보가 기록되었습니다');
+        saveLocation(latitude, longitude, accuracy);
+      },
+      (error) => {
+        setStatus('denied', '위치 권한이 거부되었습니다');
+        console.warn('Geolocation error:', error.message);
+      },
+      { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 }
+    );
+  }
+
+  document.addEventListener('DOMContentLoaded', requestLocation);
+</script>
+
+</body>
+</html>
